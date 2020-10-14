@@ -1,7 +1,7 @@
-# combine-for-rainy-days
- Practicing some Combine
+# Some Combine for rainy days
+Practicing some Combine and jotting down some notes!
 
-## Combine as a Functional Reactive Programming framework 
+Combine is a Functional Reactive Programming framework 
 
 ### 1
 
