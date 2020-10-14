@@ -297,4 +297,5 @@ class FridgeView : UIViewController {
 
 The values that are published by milkSubject are assigned to the label’s text property immediately..
 
-
+#### using Combine to update a collection view’s data source
+in progress...
