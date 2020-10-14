@@ -142,11 +142,7 @@ print(value)
 })
 ```
 
-### 4 Updating the User Interface
-
-SwiftUI is so tightly integrated with Combine that it can be really difficult to understand where Combine ends and SwiftUI begins.
-
-#### Creating publishers for your model and data.
+### 4 Updating the User Interface - Creating publishers for your model and data.
 
 There are two Subject publishers in the framework. 
 - The `PassthroughSubject`.Subjects in Combine have a `send(_:)` method and that allows you to send values down the publisher’s stream of values.
@@ -221,4 +217,84 @@ fridge2.milkInFridge
 fridge2.drink(amount: 0.2)
 print(fridgeMagnet2)
 ```
+
+- @Published property wrapper
+
+SwiftUI is so tightly integrated with Combine that it can be really difficult to understand where Combine ends and SwiftUI begins. @Published is actually Combine, but most people thinks it is a SwiftUI property.
+Lets see how we can refactor our Fridge class using @Published
+
+```
+class FridgePublished {
+	@Published var milkInFridge = 2.0
+	let milkConsumedPerDay = 1.0
+
+	func drink(amount: Double) {
+		let milkNeeded = amount * milkConsumedPerDay
+		milkInFridge -= milkNeeded
+	}
+}
+
+let fridge3 = FridgePublished()
+var fridgeMagnet3 = ""
+fridge3.$milkInFridge
+	.sink(receiveValue: { newAmount in
+		fridgeMagnet3 =	"The Fridge3 now has \(newAmount) liter milk"
+	})
+
+fridge3.drink(amount: 0.2)
+print(fridgeMagnet3)
+//The Fridge3 now has 1.8 liter milk
+```
+
+To subscribe to an `@Published` property’s changes, you need to use a $ prefix, this allows you to access the wrapper itself, also known as a projected value.
+There is one key limitation when using `@Published`. You can only use this property wrapper on properties of classes while `CurrentValueSubject` is available for both structs and classes. Assigning a new value to the @Published property automatically emits this new value to subscribers which is equivalent to calling `send(_:)` with a new value.
+
+#### assign(to:on:)
+
+Lets refactor our fridge again with some MVVM:
+```swift
+class FridgeModel {
+	@Published var milkInFridge : Double = 2.0
+	let milkConsumedPerDay = 1.0
+}
+
+struct FridgeViewModel {
+	var fridge : FridgeModel = FridgeModel()
+
+	lazy var milkSubject: AnyPublisher<String?, Never> = {
+		return fridge.$milkInFridge.map( {
+			newAmount in
+			return "The fridge has now \(newAmount) liter left"
+		}).eraseToAnyPublisher()
+	}()
+
+	mutating func drink(milkNeeded: Double) {
+		fridge.milkInFridge -= milkNeeded
+	}
+}
+
+// and quickly creating a class to display.. Not complete!
+
+class FridgeView : UIViewController {
+	var label = UILabel()
+	var button = UIButton()
+	var viewModel = FridgeViewModel()
+	var cancellables = Set<AnyCancellable>()
+
+	override func viewDidLoad() { ... }
+	
+	// this will automatically update my label when button is pressed!
+	func setUpLabel (){
+		viewModel.milkSubject
+			.assign(to: \.text, on: label)
+			.store(in: &cancellables)
+	}
+	@objc func drink() {
+		viewModel.drink(milkNeeded: 0.2)
+	}
+}
+```
+
+The values that are published by milkSubject are assigned to the label’s text property immediately..
+
 
