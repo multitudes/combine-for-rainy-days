@@ -1,11 +1,12 @@
 # Some Combine for rainy days
 Practicing some Combine and jotting down some notes!
 
+### Introducing FRP
+
 Combine is a Functional Reactive Programming framework 
 
-### 1
-
 Example of FRP 
+
 ```swift
 [1,2,3].map{$0*2} 
 ```
