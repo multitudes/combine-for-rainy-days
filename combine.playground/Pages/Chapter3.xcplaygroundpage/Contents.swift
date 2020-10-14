@@ -22,14 +22,14 @@ import Combine
 ["one", "2", "three", "4", "5"].publisher
 	.map({Int($0)})
 	.sink { (int) in
-		print(int)
+		print(int ?? 0)
 	}
 
 ["one", "2", "three", "4", "5"].publisher
 	.map({Int($0)})
 	.replaceNil(with: 0)
 	.sink { (int) in
-		print(int)
+		print(int!)
 	}
 
 
