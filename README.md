@@ -148,3 +148,65 @@ print(value)
 
 SwiftUI is so tightly integrated with Combine that it can be really difficult to understand where Combine ends and SwiftUI begins.
 
+#### Creating publishers for your model and data.
+
+There are two Subject publishers in the framework. 
+The `PassthroughSubject`.Subjects in Combine have a `send(_:)` method and that allows you to send values down the publisher’s stream of values.
+does not hold on to any of the values that it has sent in the past. All it does is accept the value that you want to send and that value isimmediately sent to all subscribers and discarded afterward.
+If you do need to have a sense of state for a property, like when you have a model with mutable values, you need the second type of Subject publisher that’s provided by Combine, the CurrentValueSubject.
+
+For ex, look at the `didSet`, when the milkAmountChanged has changed then an optional closure is called
+```swift
+class Fridge {
+	var milkAmountChanged: ((Double) -> Void)?
+	var milkInFridge = 2.0 {
+		didSet {
+			milkAmountChanged?(milkInFridge)
+		}
+	}
+	let milkConsumedPerDay = 1.0
+
+	func drink(amount: Double) {
+		let milkNeeded = amount * milkConsumedPerDay
+		milkInFridge -= milkNeeded
+	}
+}
+```
+The closure is set by the owner of the fridge:
+```swift
+
+let fridge = Fridge()
+var fridgeMagnet = "The Fridge now has \(fridge.milkInFridge)"
+fridge.milkAmountChanged = { newAmount in
+ fridgeMagnet =	"The Fridge now has \(newAmount)"
+}
+fridge.drink(amount: 0.2)
+print(fridgeMagnet)
+```
+
+Lets do it again with combine!
+```swift
+var subscription: AnyCancellable?
+
+class FridgeCombine {
+	var milkInFridge = CurrentValueSubject<Double,Never>(2.0)
+	let milkConsumedPerDay = 1.0
+
+	func drink(amount: Double) {
+		let milkNeeded = amount * milkConsumedPerDay
+		milkInFridge.value -= milkNeeded
+	}
+}
+
+let fridge2 = FridgeCombine()
+var fridgeMagnet2 = ""
+fridge2.milkInFridge
+	.sink(receiveValue: { newAmount in
+		fridgeMagnet2 =	"The Fridge2 now has \(newAmount)"
+	})
+
+fridge2.drink(amount: 0.2)
+print(fridgeMagnet2)
+
+```
+
