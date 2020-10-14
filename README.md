@@ -142,18 +142,31 @@ print(value)
 })
 ```
 
-### 4 
-
-### Updating the User Interface
+### 4 Updating the User Interface
 
 SwiftUI is so tightly integrated with Combine that it can be really difficult to understand where Combine ends and SwiftUI begins.
 
 #### Creating publishers for your model and data.
 
 There are two Subject publishers in the framework. 
-The `PassthroughSubject`.Subjects in Combine have a `send(_:)` method and that allows you to send values down the publisher’s stream of values.
-does not hold on to any of the values that it has sent in the past. All it does is accept the value that you want to send and that value isimmediately sent to all subscribers and discarded afterward.
-If you do need to have a sense of state for a property, like when you have a model with mutable values, you need the second type of Subject publisher that’s provided by Combine, the CurrentValueSubject.
+- The `PassthroughSubject`.Subjects in Combine have a `send(_:)` method and that allows you to send values down the publisher’s stream of values.
+does not hold on to any of the values that it has sent in the past. All it does is accept the value that you want to send and that value is immediately sent to all subscribers and discarded afterward. Every time the notification that we subscribed to is posted by the notification center, the line notificationSubject.send(notification) is executed. This sends the received notification directly to the PassthroughSubject which will deliver it to its subscribers immediately.  
+```swift
+var cancellables = Set<AnyCancellable>()
+let notificationSubject = PassthroughSubject<Notification, Never>()
+let notificationName = UIResponder.keyboardWillShowNotification
+let notificationCenter = NotificationCenter.default
+
+notificationCenter.addObserver(forName: notificationName, object: nil,queue: nil) { notification in
+	notificationSubject.send(notification) }
+notificationSubject
+	.sink(receiveValue: { notification in
+		print(notification)
+	}).store(in: &cancellables)
+notificationCenter.post(Notification(name: notificationName))
+```
+
+- If you do need to have a sense of state for a property, like when you have a model with mutable values, you need the second type of Subject publisher that’s provided by Combine, the `CurrentValueSubject`.
 
 For ex, look at the `didSet`, when the milkAmountChanged has changed then an optional closure is called
 ```swift
@@ -207,6 +220,5 @@ fridge2.milkInFridge
 
 fridge2.drink(amount: 0.2)
 print(fridgeMagnet2)
-
 ```
 
