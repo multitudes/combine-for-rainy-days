@@ -5,7 +5,7 @@ Practicing some Combine and jotting down some notes!
 
 Combine is a Functional Reactive Programming framework 
 
-Example of FRP 
+Example of functional programming: 
 
 ```swift
 [1,2,3].map{$0*2} 
