@@ -32,7 +32,7 @@ var user = User()
 
 
 
-let myNotification = Notification.Name("com.donnywals.customNotification")
+let myNotification = Notification.Name("com.laurent.customNotification")
 //
 
 var subscription: AnyCancellable?
@@ -50,7 +50,7 @@ NotificationCenter.default.post(Notification(name: myNotification))
 //
 //
 
-let myUrl = URL(string: "https://www.donnywals.com")!
+let myUrl = URL(string: "https://www.apple.com")!
 let publisher = URLSession.shared.dataTaskPublisher(for: myUrl)
 publisher.sink(receiveCompletion: { completion in
 	switch completion {

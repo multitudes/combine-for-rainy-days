@@ -4,7 +4,7 @@ import Combine
 // ex Functional Reactive Programming framework
 [1,2,3].map { $0 * 2 }
 
-let myUrl = URL(string: "https://www.donnywals.com")!
+let myUrl = URL(string: "https://www.apple.com")!
 //func requestData(_ completion: @escaping (Result<Data, Error>) -> Void) {
 //    URLSession.shared.dataTask(with: myUrl) { data, response, error in if let error = error {
 //    completion(.failure(error))
